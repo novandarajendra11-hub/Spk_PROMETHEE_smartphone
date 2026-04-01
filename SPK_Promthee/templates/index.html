@@ -3,44 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPK Smartphone - PROMETHEE</title>
+    <title>SPK Smartphone - PROMETHEE II</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { background-color: #f4f7f6; font-family: 'Segoe UI', sans-serif; }
-        .card { border-radius: 15px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 2rem; }
-        .bg-gradient-primary { background: linear-gradient(45deg, #0d6efd, #0dcaf0); }
-        .table-star { color: #ffc107; font-size: 0.9rem; letter-spacing: 2px; }
-        .badge-nf { min-width: 60px; font-weight: bold; }
+        body { background-color: #f8fafc; font-family: 'Inter', sans-serif; color: #334155; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        .score-box { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; margin: 2px; border: 1px solid #e2e8f0; background: white; }
+        .score-num { font-weight: bold; color: #0f172a; margin-right: 4px; border-right: 1px solid #e2e8f0; padding-right: 4px; }
+        .table-star { color: #f59e0b; letter-spacing: 1px; font-size: 0.85rem; }
+        .navbar { background: #1e293b; color: white; padding: 1rem 0; }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-dark bg-gradient-primary mb-4 shadow">
-    <div class="container">
-        <span class="navbar-brand fw-bold">📱 SPK Pemilihan Smartphone (PROMETHEE II)</span>
-    </div>
+<nav class="navbar mb-4 shadow-sm">
+    <div class="container"><span class="h4 m-0 fw-bold">📱 SPK Handphone (Eraphone)</span></div>
 </nav>
 
 <div class="container">
 
-    <div class="card border-info border-top border-5">
-        <div class="card-header bg-white fw-bold">📊 Informasi Kriteria & Skala Penilaian</div>
+    <div class="card">
+        <div class="card-header bg-white fw-bold border-0 pt-3">📊 Informasi Kriteria & Skala Penilaian</div>
         <div class="card-body p-0 table-responsive">
             <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
+                <thead class="table-light small text-uppercase">
                     <tr>
-                        <th>Kode</th><th>Kriteria</th><th>Atribut</th><th>Bobot</th><th>Detail Skor (1 - 5)</th>
+                        <th class="ps-3">Kode</th><th>Kriteria</th><th>Tipe</th><th>Bobot</th><th>Detail Skor (Skala 1 - 5)</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for c in kriteria %}
                     <tr>
-                        <td class="fw-bold text-primary text-center">{{ c.id }}</td>
-                        <td>{{ c.name }}</td>
-                        <td><span class="badge {{ 'bg-success' if c.type=='Benefit' else 'bg-danger' }}">{{ c.type }}</span></td>
-                        <td>{{ c.weight }}</td>
-                        <td class="small text-muted">{{ c.details }}</td>
+                        <td class="ps-3 fw-bold text-primary">{{ c.id }}</td>
+                        <td class="fw-medium">{{ c.name }}</td>
+                        <td><span class="badge {{ 'bg-success-subtle text-success' if c.type=='Benefit' else 'bg-danger-subtle text-danger' }}">{{ c.type }}</span></td>
+                        <td><span class="fw-semibold">{{ c.weight }}</span></td>
+                        <td>
+                            <div class="d-flex flex-wrap">
+                                {% for score_text in c.scores %}
+                                <div class="score-box">
+                                    <span class="score-num">{{ loop.index }}</span>{{ score_text }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -48,18 +54,20 @@
         </div>
     </div>
 
-    <div class="card border-warning border-top border-5">
-        <div class="card-header bg-white fw-bold">⭐ Tahap 1: Matriks Penilaian Alternatif</div>
-        <div class="card-body table-responsive">
-            <table class="table table-sm align-middle">
-                <thead class="text-center small">
-                    <tr><th>Alternatif</th><th>C1</th><th>C2</th><th>C3</th><th>C4</th><th>C5</th></tr>
+    <div class="card">
+        <div class="card-header bg-white fw-bold border-0 pt-3 text-warning">⭐ Tahap 1: Matriks Penilaian Alternatif</div>
+        <div class="card-body p-0 table-responsive">
+            <table class="table table-sm align-middle mb-0 text-center">
+                <thead class="table-light small">
+                    <tr><th class="text-start ps-3">Nama Smartphone</th><th>C1</th><th>C2</th><th>C3</th><th>C4</th><th>C5</th></tr>
                 </thead>
-                <tbody class="table-star text-center">
+                <tbody class="table-star">
                     {% for row in matriks %}
                     <tr>
-                        <td class="text-dark fw-bold text-start ps-3" style="letter-spacing: 0;">{{ row.nama }}</td>
-                        <td>{{ row.c1 }}</td><td>{{ row.c2 }}</td><td>{{ row.c3 }}</td><td>{{ row.c4 }}</td><td>{{ row.c5 }}</td>
+                        <td class="text-dark fw-semibold text-start ps-3 small">{{ row.nama }}</td>
+                        {% for val in row.vals %}
+                        <td>{{ "★" * val }}{{ "☆" * (5 - val) }}</td>
+                        {% endfor %}
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -67,20 +75,21 @@
         </div>
     </div>
 
-    <div class="card border-success border-top border-5">
-        <div class="card-header bg-white fw-bold">🏆 Tahap 2: Hasil Akhir & Perangkingan</div>
+    <div class="card">
+        <div class="card-header bg-white fw-bold border-0 pt-3 text-success">🏆 Tahap 2: Hasil Akhir & Perangkingan</div>
         <div class="card-body p-0 table-responsive">
             <table class="table table-hover align-middle mb-0 text-center">
                 <thead class="table-dark">
-                    <tr><th>Rank</th><th class="text-start ps-4">Smartphone</th><th>Leaving Flow</th><th>Entering Flow</th><th>Net Flow (Φ)</th></tr>
+                    <tr><th>Rank</th><th class="text-start ps-3">Smartphone</th><th>Leaving Flow</th><th>Entering Flow</th><th>Net Flow (Φ)</th></tr>
                 </thead>
                 <tbody>
                     {% for item in hasil %}
                     <tr>
-                        <td><span class="badge rounded-pill bg-dark">{{ loop.index }}</span></td>
-                        <td class="text-start ps-4"><a href="{{ item.url }}" target="_blank" class="text-decoration-none fw-bold">▶️ {{ item.nama }}</a></td>
-                        <td class="text-muted">{{ item.lf }}</td><td class="text-muted">{{ item.ef }}</td>
-                        <td><span class="badge badge-nf {{ 'bg-success' if item.nf >= 0 else 'bg-danger' }}">{{ item.nf }}</span></td>
+                        <td><span class="badge bg-secondary rounded-pill">{{ loop.index }}</span></td>
+                        <td class="text-start ps-3 fw-bold">{{ item.nama }}</td>
+                        <td class="text-muted small">{{ item.lf }}</td>
+                        <td class="text-muted small">{{ item.ef }}</td>
+                        <td><span class="badge {{ 'bg-success' if item.nf >= 0 else 'bg-danger' }} px-3">{{ item.nf }}</span></td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -88,29 +97,7 @@
         </div>
     </div>
 
-    <div class="card p-4">
-        <canvas id="myChart" height="120"></canvas>
-    </div>
-
 </div>
-
-<script>
-    new Chart(document.getElementById('myChart'), {
-        type: 'bar',
-        data: {
-            labels: {{ labels | tojson }},
-            datasets: [{
-                label: 'Net Flow (Φ)',
-                data: {{ data_grafik | tojson }},
-                backgroundColor: 'rgba(13, 110, 253, 0.6)',
-                borderColor: 'rgba(13, 110, 253, 1)',
-                borderWidth: 1,
-                borderRadius: 5
-            }]
-        },
-        options: { responsive: true, plugins: { legend: { display: false } } }
-    });
-</script>
 
 </body>
 </html>
