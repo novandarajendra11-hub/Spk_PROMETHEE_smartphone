@@ -18,8 +18,16 @@ def index():
     
     # 2. Matriks Keputusan Awal (Sesuai Jurnal)
     data = np.array([
-        [5, 5, 5, 3, 5], [4, 5, 5, 4, 5], [4, 4, 4, 4, 4], [4, 4, 4, 5, 4], [4, 4, 3, 4, 3],
-        [3, 4, 4, 3, 3], [3, 5, 4, 4, 3], [4, 4, 4, 3, 3], [4, 5, 4, 4, 3], [4, 4, 4, 3, 4]
+        [5, 5, 5, 3, 1], # A1 - iPhone 15 Pro Max (>15jt)
+        [4, 5, 5, 4, 1], # A2 - S24 Ultra (>15jt)
+        [4, 4, 4, 4, 2], # A3 - Pixel 8 Pro (11-15jt)
+        [4, 4, 4, 5, 2], # A4 - Xiaomi 14 Ultra (11-15jt)
+        [4, 4, 3, 4, 3], # A5 - OnePlus 12 (7-11jt)
+        [3, 4, 4, 3, 4], # A6 - Oppo Find X7 Pro (3-7jt)
+        [3, 5, 4, 4, 2], # A7 - Huawei Mate 60 Pro (11-15jt)
+        [4, 4, 4, 3, 3], # A8 - Vivo X100 Pro (7-11jt)
+        [4, 5, 4, 4, 2], # A9 - Asus ROG Phone 7 (11-15jt)
+        [4, 4, 4, 3, 2]  # A10 - Sony Xperia 1 V (11-15jt)
     ], dtype=float)
     
     # Bobot: C1(Layar)=30%, C2(Simpan)=30%, C3(RAM)=20%, C4(Kamera)=10%, C5(Harga)=10%
