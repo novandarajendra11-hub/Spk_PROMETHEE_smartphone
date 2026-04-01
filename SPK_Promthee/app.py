@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    # 1. Data Kriteria & Sub-Kriteria (Dibuat List agar rapi)
+    # 1. Data Kriteria & Sub-Kriteria (Skala 1-5 sesuai gambar)
     criteria_info = [
         {
             'id': 'C1', 'name': 'Resolusi Layar', 'weight': '30%', 'type': 'Benefit',
@@ -29,13 +29,14 @@ def index():
         }
     ]
 
-    # 2. Data Alternatif & Matriks Skor (1-5)
+    # 2. Data Alternatif
     names = [
         'Apple iPhone 15 Pro Max', 'Samsung Galaxy S24 Ultra', 'Google Pixel 8 Pro', 
         'Xiaomi 14 Ultra', 'OnePlus 12', 'Oppo Find X7 Pro', 
         'Huawei Mate 60 Pro', 'Vivo X100 Pro', 'Asus ROG Phone 7', 'Sony Xperia 1 V'
     ]
     
+    # Matriks Skor (1-5)
     data = np.array([
         [5, 5, 5, 3, 1], [4, 5, 5, 4, 1], [4, 4, 4, 4, 2], [4, 4, 4, 5, 2], [4, 4, 4, 4, 3],
         [3, 4, 4, 3, 4], [3, 5, 4, 4, 2], [4, 4, 4, 3, 3], [4, 5, 4, 4, 2], [4, 4, 4, 3, 2]
@@ -44,11 +45,11 @@ def index():
     weights = np.array([0.3, 0.3, 0.2, 0.1, 0.1])
     n = len(names)
 
-    # Format Bintang untuk Tabel Matriks
+    # Menyiapkan data untuk tabel penilaian (Visual Bintang)
     matriks_view = []
     for i in range(n):
         matriks_view.append({
-            'kode': f'A{i+1}', 'nama': names[i],
+            'nama': names[i],
             'vals': [int(x) for x in data[i]]
         })
 
@@ -65,12 +66,18 @@ def index():
     entering_flow = np.sum(pi, axis=0) / (n - 1)
     net_flow = leaving_flow - entering_flow 
 
+    # 4. Hasil Akhir + FITUR SEARCH YOUTUBE
     hasil = []
     for i in range(n):
         hasil.append({
-            'nama': names[i], 'lf': round(leaving_flow[i], 4),
-            'ef': round(entering_flow[i], 4), 'nf': round(net_flow[i], 4)
+            'nama': names[i],
+            'lf': round(leaving_flow[i], 4),
+            'ef': round(entering_flow[i], 4),
+            'nf': round(net_flow[i], 4),
+            # Link YouTube Search Otomatis
+            'yt_url': f'https://www.youtube.com/results?search_query=Review+{names[i].replace(" ", "+")}'
         })
+    
     hasil.sort(key=lambda x: x['nf'], reverse=True)
 
     return render_template('index.html', kriteria=criteria_info, matriks=matriks_view, hasil=hasil)
