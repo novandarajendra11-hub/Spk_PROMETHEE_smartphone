@@ -5,28 +5,13 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    # 1. Data Kriteria & Sub-Kriteria (Skala 1-5 sesuai gambar)
+    # 1. Informasi Kriteria (Untuk Tabel Tahap 0)
     criteria_info = [
-        {
-            'id': 'C1', 'name': 'Resolusi Layar', 'weight': '30%', 'type': 'Benefit',
-            'scores': ['IPS 720p', 'IPS 1080p', 'OLED FHD', 'OLED 2K', 'OLED 4K']
-        },
-        {
-            'id': 'C2', 'name': 'Penyimpanan', 'weight': '30%', 'type': 'Benefit',
-            'scores': ['32 GB', '64 GB', '128 GB', '256 GB', '512 GB']
-        },
-        {
-            'id': 'C3', 'name': 'RAM', 'weight': '20%', 'type': 'Benefit',
-            'scores': ['2 GB', '4 GB', '6 GB', '8 GB', '12 GB']
-        },
-        {
-            'id': 'C4', 'name': 'Kamera', 'weight': '10%', 'type': 'Benefit',
-            'scores': ['8 MP', '12 MP', '48 MP', '64 MP', '108 MP']
-        },
-        {
-            'id': 'C5', 'name': 'Harga', 'weight': '10%', 'type': 'Cost',
-            'scores': ['> 15 Juta', '11-15 Juta', '7-11 Juta', '3-6 Juta', '< 3 Juta']
-        }
+        {'id': 'C1', 'name': 'Resolusi Layar', 'weight': '30%', 'type': 'Benefit', 'scores': ['IPS 720p', 'IPS 1080p', 'OLED FHD', 'OLED 2K', 'OLED 4K']},
+        {'id': 'C2', 'name': 'Penyimpanan', 'weight': '30%', 'type': 'Benefit', 'scores': ['32 GB', '64 GB', '128 GB', '256 GB', '512 GB']},
+        {'id': 'C3', 'name': 'RAM', 'weight': '20%', 'type': 'Benefit', 'scores': ['2 GB', '4 GB', '6 GB', '8 GB', '12 GB']},
+        {'id': 'C4', 'name': 'Kamera', 'weight': '10%', 'type': 'Benefit', 'scores': ['8 MP', '12 MP', '48 MP', '64 MP', '108 MP']},
+        {'id': 'C5', 'name': 'Harga', 'weight': '10%', 'type': 'Cost', 'scores': ['> 15 Juta', '11-15 Juta', '7-11 Juta', '3-6 Juta', '< 3 Juta']}
     ]
 
     # 2. Data Alternatif
@@ -36,7 +21,7 @@ def index():
         'Huawei Mate 60 Pro', 'Vivo X100 Pro', 'Asus ROG Phone 7', 'Sony Xperia 1 V'
     ]
     
-    # Matriks Skor (1-5)
+    # Matriks Skor (1-5) berdasarkan Sub-Kriteria
     data = np.array([
         [5, 5, 5, 3, 1], [4, 5, 5, 4, 1], [4, 4, 4, 4, 2], [4, 4, 4, 5, 2], [4, 4, 4, 4, 3],
         [3, 4, 4, 3, 4], [3, 5, 4, 4, 2], [4, 4, 4, 3, 3], [4, 5, 4, 4, 2], [4, 4, 4, 3, 2]
@@ -45,13 +30,10 @@ def index():
     weights = np.array([0.3, 0.3, 0.2, 0.1, 0.1])
     n = len(names)
 
-    # Menyiapkan data untuk tabel penilaian (Visual Bintang)
+    # Matriks View untuk Bintang
     matriks_view = []
     for i in range(n):
-        matriks_view.append({
-            'nama': names[i],
-            'vals': [int(x) for x in data[i]]
-        })
+        matriks_view.append({'nama': names[i], 'vals': [int(x) for x in data[i]]})
 
     # 3. PERHITUNGAN PROMETHEE II
     pi = np.zeros((n, n))
@@ -66,7 +48,7 @@ def index():
     entering_flow = np.sum(pi, axis=0) / (n - 1)
     net_flow = leaving_flow - entering_flow 
 
-    # 4. Hasil Akhir + FITUR SEARCH YOUTUBE
+    # 4. Final Data (Ranking + YT + Status)
     hasil = []
     for i in range(n):
         hasil.append({
@@ -74,13 +56,24 @@ def index():
             'lf': round(leaving_flow[i], 4),
             'ef': round(entering_flow[i], 4),
             'nf': round(net_flow[i], 4),
-            # Link YouTube Search Otomatis
             'yt_url': f'https://www.youtube.com/results?search_query=Review+{names[i].replace(" ", "+")}'
         })
     
+    # Sort Berdasarkan Net Flow
     hasil.sort(key=lambda x: x['nf'], reverse=True)
 
-    return render_template('index.html', kriteria=criteria_info, matriks=matriks_view, hasil=hasil)
+    # Tambahkan Status Berdasarkan Urutan
+    for idx, h in enumerate(hasil):
+        h['rank'] = idx + 1
+        if h['rank'] <= 2: h['status'] = 'Sangat Direkomendasikan'
+        elif h['rank'] <= 4: h['status'] = 'Direkomendasikan'
+        else: h['status'] = 'Kurang Disarankan'
+
+    # Data untuk Visualisasi (Chart.js)
+    labels_grafik = [h['nama'] for h in hasil]
+    data_grafik = [h['nf'] for h in hasil]
+
+    return render_template('index.html', kriteria=criteria_info, matriks=matriks_view, hasil=hasil, labels=labels_grafik, values=data_grafik)
 
 if __name__ == '__main__':
     app.run(debug=True)
